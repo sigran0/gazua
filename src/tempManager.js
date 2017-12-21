@@ -1,6 +1,6 @@
 
 const webDriver = require('selenium-webdriver');
-const chrome = require('selenium-webdriver/chrome');
+const chrome = require('selenium-webdriver/phantomjs');
 const dbManager = require('./databaseManager');
 
 const url = 'http://www.koreawqi.go.kr/wQDDRealTotalDataLayout_D.wq?MENU_GUBUN=110';
@@ -39,7 +39,8 @@ function click(driver, selector) {
 
 function crawlTemperature() {
     return new Promise((resolved, rejected) => {
-        const driver = new webDriver.Builder().forBrowser('chrome').build();
+        const driver = new webDriver.Builder().forBrowser('phantomjs').build();
+        driver.manage().window().maximize();
         driver.get(url);
         driver
             .wait(until.elementLocated(By.css('#sel_site1 > option:nth-child(18)')), 20000)
@@ -83,6 +84,8 @@ function crawlTemperature() {
                                             timestamp: date.valueOf()
                                         };
 
+                                        console.log(text);
+
                                         dbManager.setData('temperature', result);
 
                                         driver.close();
@@ -119,7 +122,7 @@ exports.getTemperature = () => {
         let currentDate = new Date();
         let timeDiff = currentDate - crawledDate;
 
-        if(timeDiff > 43200000)
+        if(timeDiff > 43200000)     //  43200000
             needCrawl = true;
 
         if(needCrawl){
